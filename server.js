@@ -1,9 +1,14 @@
 //setup Dependencies
 var connect = require('connect'), express = require('express'), io = require('socket.io'), port = (process.env.PORT || 8081);
 var redis = require("redis");
+if(process.env.REDISTOGO_URL){
 var rtg   = require("url").parse(process.env.REDISTOGO_URL);
 var red = require("redis").createClient(rtg.port, rtg.hostname);
 red.auth(rtg.auth.split(":")[1]);
+}
+else{
+	red = require("redis").createClient(6379, "gator2.lan");
+}
 
 
 //Setup Express
@@ -53,6 +58,8 @@ red.on("connect", function() {
 		red.hset("w" + i, 'w', w);
 		red.hset("w" + i, "left", Math.round((Math.random() * 1280 * 100) / 100));
 		red.hset("w" + i, "top", Math.round((Math.random() * 720 * 100) / 100));
+		red.hset("w" + i, "rot", Math.round((Math.random()*6)-3));
+		
 	});
 });
 
