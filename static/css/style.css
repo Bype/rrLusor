@@ -109,6 +109,7 @@ textarea {
 	position:fixed;
 	background-color:rgba(64,64,64,.9);
 	color:#fff;
+	outline: 1px solid transparent;
 	}
 
 
