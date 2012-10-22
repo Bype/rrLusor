@@ -3,7 +3,7 @@
 	"description": "Collaborative magnetic poem",
 	"author": "David Olivari<david.olivari@gmail.com>",
 	"version": "0.0.1",
-	"engine": {
+	"engines": {
 		"node": "0.8.x",
 		"npm": "1.1.x"
 	},
