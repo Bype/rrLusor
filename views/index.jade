@@ -1,7 +1,7 @@
 extends layout
 
 block content
-	div
+	div.content
 		- var i=0
 		each w in words
 			div(class="word",id=w.id,style="top:"+w.top+"px;left:"+w.left+"px;"+"-webkit-transform:rotate("+w.rot+"deg);"+"-moz-transform:rotate("+w.rot+"deg);")	#{w.w}
