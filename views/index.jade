@@ -2,5 +2,8 @@ extends layout
 
 block content
 	div
-		a(id='sender')='Send a Message'
-		ul(id='receiver')
+		- var i=0
+		each w in words
+			div(class="word",id=w.id,style="top:"+w.top+"px;left:"+w.left+"px")	#{w.w}
+			- i++
+			
