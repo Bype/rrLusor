@@ -4,7 +4,7 @@
 	"author": "David Olivari<david.olivari@gmail.com>",
 	"version": "0.0.1",
 	"engines": {
-		"node": "0.8.x",
+		"node": "0.6.6",
 		"npm": "1.1.x"
 	},
 	"dependencies": {
