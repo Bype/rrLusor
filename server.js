@@ -1,7 +1,8 @@
 //setup Dependencies
 var connect = require('connect'), express = require('express'), io = require('socket.io'), port = (process.env.PORT || 8081);
 var redis = require("redis");
-var red = redis.createClient(6379, "gator2.lan");
+var red = redis.createClient(9151, "sole.redistogo.com");
+red.auth("961ff07cfecdb6e376f0d13ecb983927");
 
 //Setup Express
 var server = express.createServer();
