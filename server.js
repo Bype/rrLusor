@@ -2,7 +2,7 @@
 var connect = require('connect'), express = require('express'), io = require('socket.io'), port = (process.env.PORT || 8081);
 var redis = require("redis");
 var red = redis.createClient(9151, "sole.redistogo.com");
-red.auth("961ff07cfecdb6e376f0d13ecb983927");
+red.auth("b72c1936a61e7dca42989a096e7d998d");
 
 //Setup Express
 var server = express.createServer();
