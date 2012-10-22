@@ -1,15 +1,15 @@
 //setup Dependencies
 var connect = require('connect'), express = require('express'), io = require('socket.io'), port = (process.env.PORT || 8081);
 var redis = require("redis");
-if(process.env.REDISTOGO_URL){
-var rtg   = require("url").parse(process.env.REDISTOGO_URL);
-var red = require("redis").createClient(rtg.port, rtg.hostname);
-red.auth(rtg.auth.split(":")[1]);
-}
-else{
+if (process.env.REDISTOGO_URL) {
+	var rtg = require("url").parse(process.env.REDISTOGO_URL);
+	var red = require("redis").createClient(rtg.port, rtg.hostname);
+	red.auth(rtg.auth.split(":")[1]);
+} else {
 	red = require("redis").createClient(6379, "gator2.lan");
 }
 
+var fs = require("fs");
 
 //Setup Express
 var server = express.createServer();
@@ -52,29 +52,35 @@ server.error(function(err, req, res, next) {
 	}
 });
 server.listen(port);
+
 var words = ["foin", "de", "l’aboli", "bibelot", "désormais", " préfère", "l’ortie", "pour", "juste", "ce qu’il faut", "d’émoi", "monotone", "comme", "l’émoi", "de", "ta", "conscience", "bibelot", "se frotte", "ton", "cœur", "aux", "orties", "sinon", "qu’en", "convive", "aux", "orties", "tu", "ne", "combattrais", "ton", "émoi", "que", "d’une", "bible", "en", "bibelots"];
+
 red.on("connect", function() {
-	words.forEach(function(w, i) {
-		red.hset("w" + i, 'w', w);
-		red.hset("w" + i, "left", Math.round((Math.random() * 1280 * 100) / 100));
-		red.hset("w" + i, "top", Math.round((Math.random() * 720 * 100) / 100));
-		red.hset("w" + i, "rot", Math.round((Math.random()*6)-3));
-		
+
+	fs.readFile('base.txt', 'utf8', function(err, data) {
+		words = data.split(" ");
+		words.forEach(function(w, i) {
+			red.hset("w" + i, 'w', w);
+			red.hset("w" + i, "left", Math.round((Math.random() * 1280 * 100) / 100));
+			red.hset("w" + i, "top", Math.round((Math.random() * 720 * 100) / 100));
+			red.hset("w" + i, "rot", Math.round((Math.random() * 6) - 3));
+
+		});
 	});
 });
 
 //Setup Socket.IO
 var io = io.listen(server);
 // assuming io is the Socket.IO server object
-io.configure(function () { 
-  io.set("transports", ["xhr-polling"]); 
-  io.set("polling duration", 10); 
+io.configure(function() {
+	io.set("transports", ["xhr-polling"]);
+	io.set("polling duration", 10);
 });
 io.sockets.on('connection', function(socket) {
 	socket.on('position', function(data) {
 		socket.broadcast.emit('position', data);
-		red.hset(data.id,"left",data.pos.left);
-		red.hset(data.id,"top",data.pos.top);
+		red.hset(data.id, "left", data.pos.left);
+		red.hset(data.id, "top", data.pos.top);
 	});
 	socket.on('disconnect', function() {
 	});
