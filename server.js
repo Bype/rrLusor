@@ -58,8 +58,7 @@ var words = ["foin", "de", "l’aboli", "bibelot", "désormais", " préfère", "
 red.on("connect", function() {
 
 	fs.readFile('base.txt', 'utf8', function(err, data) {
-		data = data.replace("\n"," ");
-		words= data.split(" ");
+		words= data.split(/[\s,]+/);
 		words.forEach(function(w, i) {
 			red.hset("w" + i, 'w', w);
 			red.hset("w" + i, "left", Math.round((Math.random() * 1280 * 100) / 100));
