@@ -61,9 +61,9 @@ red.on("connect", function() {
 		words= data.split(/[\s,]+/);
 		words.forEach(function(w, i) {
 			red.hset("w" + i, 'w', w);
-			red.hset("w" + i, "left", Math.round((Math.random() * 1280 * 100) / 100));
-			red.hset("w" + i, "top", Math.round((Math.random() * 720 * 100) / 100));
-			red.hset("w" + i, "rot", Math.round((Math.random() * 6) - 3));
+			red.hset("w" + i, "left", Math.round((Math.random() * 1800 * 100) / 100));
+			red.hset("w" + i, "top", Math.round((Math.random() * 800 * 100) / 100));
+			red.hset("w" + i, "rot", Math.round((Math.random() * 8) - 4));
 
 		});
 	});
