@@ -6,7 +6,7 @@ if (process.env.REDISTOGO_URL) {
 	var red = require("redis").createClient(rtg.port, rtg.hostname);
 	red.auth(rtg.auth.split(":")[1]);
 } else {
-	red = require("redis").createClient(6379, "gator2.lan");
+	red = require("redis").createClient(6379, "localhost");
 }
 
 var fs = require("fs");
@@ -53,18 +53,25 @@ server.error(function(err, req, res, next) {
 });
 server.listen(port);
 
-var words = ["foin", "de", "l’aboli", "bibelot", "désormais", " préfère", "l’ortie", "pour", "juste", "ce qu’il faut", "d’émoi", "monotone", "comme", "l’émoi", "de", "ta", "conscience", "bibelot", "se frotte", "ton", "cœur", "aux", "orties", "sinon", "qu’en", "convive", "aux", "orties", "tu", "ne", "combattrais", "ton", "émoi", "que", "d’une", "bible", "en", "bibelots"];
-
+var idx = 0;
 red.on("connect", function() {
 
 	fs.readFile('base.txt', 'utf8', function(err, data) {
-		words= data.split(/[\s,]+/);
-		words.forEach(function(w, i) {
-			red.hset("w" + i, 'w', w);
-			red.hset("w" + i, "left", Math.round((Math.random() * 1800 * 100) / 100));
-			red.hset("w" + i, "top", Math.round((Math.random() * 800 * 100) / 100));
-			red.hset("w" + i, "rot", Math.round((Math.random() * 8) - 4));
-
+		lines = data.split(/\n/);
+		lines.forEach(function(l, j) {
+			var words = l.split(/\s/);
+			var lastwc = 50;
+			words.forEach(function(w, i) {
+				if ((w != ' ') && (w !== '')) {
+					red.hset("w" + idx, 'id', "w" + idx);
+					red.hset("w" + idx, 'w', w);
+					red.hset("w" + idx, "left", lastwc + (640 * Math.floor(j / 24)));
+					red.hset("w" + idx, "top", 50+40 * (j % 24));
+					red.hset("w" + idx, "rot", (Math.random() * 8) - 4);
+					lastwc += (8 + Math.random() * 2) * (w.length + 1);
+				}
+				idx++;
+			})
 		});
 	});
 });
@@ -95,12 +102,12 @@ io.sockets.on('connection', function(socket) {
 server.get('/', function(req, res) {
 	var multi = red.multi();
 	var myWords = [];
-	words.forEach(function(w, i) {
+	for (var i = 0; i < idx; i++) {
 		multi.hgetall("w" + i, function(err, ret) {
-			ret.id = "w" + i;
-			myWords.push(ret);
+			if (ret !== null)
+				myWords.push(ret);
 		});
-	});
+	}
 	multi.exec(function(err, ret) {
 		res.render('index.jade', {
 			locals : {
