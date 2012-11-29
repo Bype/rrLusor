@@ -6,7 +6,7 @@ if (process.env.REDISTOGO_URL) {
 	var red = require("redis").createClient(rtg.port, rtg.hostname);
 	red.auth(rtg.auth.split(":")[1]);
 } else {
-	red = require("redis").createClient(6379, "localhost");
+	red = require("redis").createClient(6379, "gator2.lan");
 }
 
 var fs = require("fs");
@@ -53,29 +53,6 @@ server.error(function(err, req, res, next) {
 });
 server.listen(port);
 
-var idx = 0;
-red.on("connect", function() {
-
-	fs.readFile('base.txt', 'utf8', function(err, data) {
-		lines = data.split(/\n/);
-		lines.forEach(function(l, j) {
-			var words = l.split(/\s/);
-			var lastwc = 50;
-			words.forEach(function(w, i) {
-				if ((w != ' ') && (w !== '')) {
-					red.hset("w" + idx, 'id', "w" + idx);
-					red.hset("w" + idx, 'w', w);
-					red.hset("w" + idx, "left", lastwc + (640 * Math.floor(j / 24)));
-					red.hset("w" + idx, "top", 50+40 * (j % 24));
-					red.hset("w" + idx, "rot", (Math.random() * 8) - 4);
-					lastwc += (8 + Math.random() * 2) * (w.length + 1);
-				}
-				idx++;
-			})
-		});
-	});
-});
-
 //Setup Socket.IO
 var io = io.listen(server);
 // assuming io is the Socket.IO server object
@@ -93,6 +70,36 @@ io.sockets.on('connection', function(socket) {
 	});
 });
 
+server.get('/init', function(req, res) {
+	fs.readFile('base.txt', 'utf8', function(err, data) {
+		lines = data.split(/\n/);
+		var idx = 0;
+		red.set("idx", idx);
+		lines.forEach(function(l, j) {
+			var words = l.split(/\s/);
+			var lastwc = 50;
+			words.forEach(function(w, i) {
+				if ((w != ' ') && (w !== '')) {
+					red.hset("w" + idx, 'id', "w" + idx);
+					red.hset("w" + idx, 'w', w);
+					red.hset("w" + idx, "left", lastwc + (640 * Math.floor(j / 24)));
+					red.hset("w" + idx, "top", 50 + 40 * (j % 24));
+					red.hset("w" + idx, "rot", (Math.random() * 8) - 4);
+					lastwc += (8 + Math.random() * 2) * (w.length + 1);
+					red.incr("idx");
+					idx++;
+				}
+			});
+		});
+		console.log(idx);
+		red.get("idx", function(err, data) {
+
+			res.end(data)
+		});
+
+	});
+});
+
 ///////////////////////////////////////////
 //              Routes                   //
 ///////////////////////////////////////////
@@ -102,20 +109,22 @@ io.sockets.on('connection', function(socket) {
 server.get('/', function(req, res) {
 	var multi = red.multi();
 	var myWords = [];
-	for (var i = 0; i < idx; i++) {
-		multi.hgetall("w" + i, function(err, ret) {
-			if (ret !== null)
-				myWords.push(ret);
-		});
-	}
-	multi.exec(function(err, ret) {
-		res.render('index.jade', {
-			locals : {
-				title : 'Poème Magnétique',
-				description : 'Your Page Description',
-				author : 'Your Name',
-				words : myWords
-			}
+	red.get("idx", function(err, idx) {
+		for (var i = 0; i < idx; i++) {
+			multi.hgetall("w" + i, function(err, ret) {
+				if (ret !== null)
+					myWords.push(ret);
+			});
+		}
+		multi.exec(function(err, ret) {
+			res.render('index.jade', {
+				locals : {
+					title : 'Poème Magnétique',
+					description : 'Your Page Description',
+					author : 'Your Name',
+					words : myWords
+				}
+			});
 		});
 	});
 });
