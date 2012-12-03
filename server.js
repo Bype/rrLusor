@@ -51,7 +51,7 @@ server.error(function(err, req, res, next) {
 		});
 	}
 });
-server.listen(port);
+server.listen(port,process.env.LISTENADDR);
 
 //Setup Socket.IO
 var io = io.listen(server);
