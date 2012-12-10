@@ -101,6 +101,8 @@ server.get('/init', function(req, res) {
 /////// ADD ALL YOUR ROUTES HERE  /////////
 var myWords = [];
 server.get('/', function(req, res) {
+
+	myWords = [];
 	var multi = red.multi();
 	red.get("idx", function(err, idx) {
 		for (var i = 0; i < idx; i++) {
