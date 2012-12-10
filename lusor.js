@@ -1,5 +1,5 @@
 //setup Dependencies
-var connect = require('connect'), express = require('express'), io = require('socket.io'), red = require("redis").createClient(6379, "192.168.122.1");
+var connect = require('connect'), express = require('express'), io = require('socket.io'), red = require("redis").createClient(6379, "dbserver");
 
 var fs = require("fs");
 
