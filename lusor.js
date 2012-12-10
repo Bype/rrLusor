@@ -17,7 +17,6 @@ server.configure(function() {
 	}));
 	server.use(connect.static(__dirname + '/static'));
 	server.use(server.router);
-	server.set('redisdb', 1);
 });
 
 //setup the errors
