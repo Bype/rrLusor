@@ -11,7 +11,8 @@
 		"express": "2.5.2",
 		"jade": "0.20.0",
 		"socket.io": "0.8.7",
-		"redis": "*"
+		"redis": "*",
+		"hiredis":"*"
 	},
 	"devDependencies": {
 		"vows": "0.5.x",
