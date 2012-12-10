@@ -19,7 +19,7 @@
 		"should": "*"
 	},
 	"scripts": {
-		"start": "node server.js"
+		"start": "node lusor.js"
 	},
 	"analyze": true,
 	"subdomain": "rrLusor"

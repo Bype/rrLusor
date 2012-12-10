@@ -1,13 +1,5 @@
 //setup Dependencies
-var connect = require('connect'), express = require('express'), io = require('socket.io'), port = (process.env.PORT || 8081);
-var redis = require("redis");
-if (process.env.REDISTOGO_URL) {
-	var rtg = require("url").parse(process.env.REDISTOGO_URL);
-	var red = require("redis").createClient(rtg.port, rtg.hostname);
-	red.auth(rtg.auth.split(":")[1]);
-} else {
-	red = require("redis").createClient(6379, "gator2.lan");
-}
+var connect = require('connect'), express = require('express'), io = require('socket.io'), red = require("redis").createClient(6379, "192.168.122.1");
 
 var fs = require("fs");
 
@@ -25,6 +17,7 @@ server.configure(function() {
 	}));
 	server.use(connect.static(__dirname + '/static'));
 	server.use(server.router);
+	server.set('redisdb', 1);
 });
 
 //setup the errors
@@ -51,14 +44,18 @@ server.error(function(err, req, res, next) {
 		});
 	}
 });
-server.listen(port,process.env.LISTENADDR);
+server.listen(process.env.PORT || 5010, process.env.LISTENADDR || '127.0.0.1');
 
 //Setup Socket.IO
-var io = io.listen(server);
+var io = io.listen(server, {
+	log : false
+});
 // assuming io is the Socket.IO server object
 io.configure(function() {
 	io.set("transports", ["xhr-polling"]);
 	io.set("polling duration", 10);
+	io.set('log level', 0);
+
 });
 io.sockets.on('connection', function(socket) {
 	socket.on('position', function(data) {
@@ -91,9 +88,7 @@ server.get('/init', function(req, res) {
 				}
 			});
 		});
-		console.log(idx);
 		red.get("idx", function(err, data) {
-
 			res.end(data)
 		});
 
@@ -145,4 +140,3 @@ function NotFound(msg) {
 	Error.captureStackTrace(this, arguments.callee);
 }
 
-console.log('Listening on http://0.0.0.0:' + port);
