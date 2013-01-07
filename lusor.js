@@ -59,8 +59,10 @@ io.configure(function() {
 io.sockets.on('connection', function(socket) {
 	socket.on('position', function(data) {
 		socket.broadcast.emit('position', data);
-		red.hset(data.id, "left", data.pos.left);
-		red.hset(data.id, "top", data.pos.top);
+		red.select(2, function() {
+			red.hset(data.id, "left", data.pos.left);
+			red.hset(data.id, "top", data.pos.top);
+		});
 	});
 	socket.on('disconnect', function() {
 	});
@@ -70,27 +72,29 @@ server.get('/init', function(req, res) {
 	fs.readFile('base.txt', 'utf8', function(err, data) {
 		lines = data.split(/\n/);
 		var idx = 0;
-		red.set("idx", idx);
-		lines.forEach(function(l, j) {
-			var words = l.split(/\s/);
-			var lastwc = 50;
-			words.forEach(function(w, i) {
-				if ((w != ' ') && (w !== '')) {
-					red.hset("w" + idx, 'id', "w" + idx);
-					red.hset("w" + idx, 'w', w);
-					red.hset("w" + idx, "left", lastwc + (640 * Math.floor(j / 24)));
-					red.hset("w" + idx, "top", 50 + 40 * (j % 24));
-					red.hset("w" + idx, "rot", (Math.random() * 8) - 4);
-					lastwc += (8 + Math.random() * 2) * (w.length + 1);
-					red.incr("idx");
-					idx++;
-				}
+		red.select(2, function() {
+			red.set("idx", idx);
+			lines.forEach(function(l, j) {
+				var words = l.split(/\s/);
+				var lastwc = 50;
+				words.forEach(function(w, i) {
+					if ((w != ' ') && (w !== '')) {
+						red.hset("w" + idx, 'id', "w" + idx);
+						red.hset("w" + idx, 'w', w);
+						red.hset("w" + idx, "left", lastwc + (640 * Math.floor(j / 24)));
+						red.hset("w" + idx, "top", 50 + 40 * (j % 24));
+						red.hset("w" + idx, "rot", (Math.random() * 8) - 4);
+						lastwc += (8 + Math.random() * 2) * (w.length + 1);
+						red.incr("idx");
+						idx++;
+					}
+				});
+			});
+			red.get("idx", function(err, data) {
+				res.header('Access-Control-Allow-Origin' ,'*');
+				res.end(data)
 			});
 		});
-		red.get("idx", function(err, data) {
-			res.end(data)
-		});
-
 	});
 });
 
@@ -101,24 +105,25 @@ server.get('/init', function(req, res) {
 /////// ADD ALL YOUR ROUTES HERE  /////////
 var myWords = [];
 server.get('/', function(req, res) {
-
-	myWords = [];
-	var multi = red.multi();
-	red.get("idx", function(err, idx) {
-		for (var i = 0; i < idx; i++) {
-			multi.hgetall("w" + i, function(err, ret) {
-				if (ret !== null)
-					myWords.push(ret);
-			});
-		}
-		multi.exec(function(err, ret) {
-			res.render('index.jade', {
-				locals : {
-					title : 'Poème Magnétique',
-					description : 'Your Page Description',
-					author : 'Your Name',
-					words : myWords
-				}
+	red.select(2, function() {
+		myWords = [];
+		var multi = red.multi();
+		red.get("idx", function(err, idx) {
+			for (var i = 0; i < idx; i++) {
+				multi.hgetall("w" + i, function(err, ret) {
+					if (ret !== null)
+						myWords.push(ret);
+				});
+			}
+			multi.exec(function(err, ret) {
+				res.render('index.jade', {
+					locals : {
+						title : 'Poème Magnétique',
+						description : 'Your Page Description',
+						author : 'Your Name',
+						words : myWords
+					}
+				});
 			});
 		});
 	});
