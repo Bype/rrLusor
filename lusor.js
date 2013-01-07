@@ -89,7 +89,7 @@ server.get('/:name/init', function(req, res) {
 				var lastwc = 50;
 				words.forEach(function(w, i) {
 					if ((w != ' ') && (w !== '')) {
-						red.hset(req.params.name + idx, 'id', req.params.name+ idx);
+						red.hset(req.params.name + idx, 'id', req.params.name + idx);
 						red.hset(req.params.name + idx, 'w', w);
 						red.hset(req.params.name + idx, "left", lastwc + (640 * Math.floor(j / 24)));
 						red.hset(req.params.name + idx, "top", 50 + 40 * (j % 24));
@@ -113,6 +113,8 @@ server.get('/:name/init', function(req, res) {
 ///////////////////////////////////////////
 
 /////// ADD ALL YOUR ROUTES HERE  /////////
+
+
 var myWords = [];
 server.get('/:name', function(req, res) {
 	red.select(2, function() {
@@ -138,6 +140,10 @@ server.get('/:name', function(req, res) {
 			});
 		});
 	});
+});
+
+server.get('/', function(req, res) {
+	res.redirect('/les_quatres_sans_cou_robert_desnos');
 });
 
 //A Route for Creating a 500 Error (Useful to keep around)
