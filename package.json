@@ -12,7 +12,8 @@
 		"jade": "0.20.0",
 		"socket.io": "0.8.7",
 		"redis": "*",
-		"hiredis":"*"
+		"hiredis":"*",
+		"mongoskin":"*"
 	},
 	"devDependencies": {
 		"vows": "0.5.x",

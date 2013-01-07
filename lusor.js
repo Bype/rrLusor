@@ -68,8 +68,18 @@ io.sockets.on('connection', function(socket) {
 	});
 });
 
-server.get('/init', function(req, res) {
-	fs.readFile('base.txt', 'utf8', function(err, data) {
+var mongo = require('mongoskin');
+var db = mongo.db("mongodb://dbserver/lusor", {
+	safe : false
+})
+
+db.bind("poems");
+
+server.get('/:name/init', function(req, res) {
+	db.poems.findOne({
+		poemname : req.params.name
+	}, function(err, poem) {
+		var data = poem.poemtext;
 		lines = data.split(/\n/);
 		var idx = 0;
 		red.select(2, function() {
@@ -79,11 +89,11 @@ server.get('/init', function(req, res) {
 				var lastwc = 50;
 				words.forEach(function(w, i) {
 					if ((w != ' ') && (w !== '')) {
-						red.hset("w" + idx, 'id', "w" + idx);
-						red.hset("w" + idx, 'w', w);
-						red.hset("w" + idx, "left", lastwc + (640 * Math.floor(j / 24)));
-						red.hset("w" + idx, "top", 50 + 40 * (j % 24));
-						red.hset("w" + idx, "rot", (Math.random() * 8) - 4);
+						red.hset(req.params.name + idx, 'id', req.params.name+ idx);
+						red.hset(req.params.name + idx, 'w', w);
+						red.hset(req.params.name + idx, "left", lastwc + (640 * Math.floor(j / 24)));
+						red.hset(req.params.name + idx, "top", 50 + 40 * (j % 24));
+						red.hset(req.params.name + idx, "rot", (Math.random() * 8) - 4);
 						lastwc += (8 + Math.random() * 2) * (w.length + 1);
 						red.incr("idx");
 						idx++;
@@ -91,7 +101,7 @@ server.get('/init', function(req, res) {
 				});
 			});
 			red.get("idx", function(err, data) {
-				res.header('Access-Control-Allow-Origin' ,'*');
+				res.header('Access-Control-Allow-Origin', '*');
 				res.end(data)
 			});
 		});
@@ -104,13 +114,13 @@ server.get('/init', function(req, res) {
 
 /////// ADD ALL YOUR ROUTES HERE  /////////
 var myWords = [];
-server.get('/', function(req, res) {
+server.get('/:name', function(req, res) {
 	red.select(2, function() {
 		myWords = [];
 		var multi = red.multi();
 		red.get("idx", function(err, idx) {
 			for (var i = 0; i < idx; i++) {
-				multi.hgetall("w" + i, function(err, ret) {
+				multi.hgetall(req.params.name + i, function(err, ret) {
 					if (ret !== null)
 						myWords.push(ret);
 				});
@@ -121,7 +131,8 @@ server.get('/', function(req, res) {
 						title : 'Poème Magnétique',
 						description : 'Your Page Description',
 						author : 'Your Name',
-						words : myWords
+						words : myWords,
+						name : req.params.name
 					}
 				});
 			});
