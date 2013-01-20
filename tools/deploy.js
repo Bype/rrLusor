@@ -10,11 +10,13 @@ var client = new haibu.drone.Client({
 // A basic package.json for a node.js application on haibu
 var app = {
    "user": "dolivari",
-   "name": "lusor",
+   "name": "lusor-bypelabs",
    "domain": "bype.org",
    "repository": {
      "type": "git",
-     "url": "git://github.com/davidonet/rrLusor.git",
+     "url": "git://github.com/Bype/rrLusor.git",
+		"branch" : "bypelabs"
+     
    },
    "scripts": {
      "start": "lusor.js"

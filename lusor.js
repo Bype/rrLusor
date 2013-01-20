@@ -43,7 +43,7 @@ server.error(function(err, req, res, next) {
 		});
 	}
 });
-server.listen(process.env.PORT || 5010, process.env.LISTENADDR || '127.0.0.1');
+server.listen(process.env.PORT || 5070, process.env.LISTENADDR || '127.0.0.1');
 
 //Setup Socket.IO
 var io = io.listen(server, {
@@ -69,7 +69,7 @@ io.sockets.on('connection', function(socket) {
 });
 
 var mongo = require('mongoskin');
-var db = mongo.db("mongodb://dbserver/lusor", {
+var db = mongo.db("mongodb://dbserver/bypelabs", {
 	safe : false
 })
 
@@ -143,7 +143,7 @@ server.get('/:name', function(req, res) {
 });
 
 server.get('/', function(req, res) {
-	res.redirect('/les_quatres_sans_cou_robert_desnos');
+	res.redirect('/poema_de_sete_faces_carlos_drummond_de_andrade');
 });
 
 //A Route for Creating a 500 Error (Useful to keep around)
