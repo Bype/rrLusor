@@ -14,7 +14,7 @@ var app = {
    "domain": "bype.org",
    "repository": {
      "type": "git",
-     "url": "git://github.com/davidonet/rrLusor.git",
+     "url": "git://github.com/Bype/rrLusor.git",
    },
    "scripts": {
      "start": "lusor.js"
