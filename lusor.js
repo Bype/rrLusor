@@ -43,7 +43,7 @@ server.error(function(err, req, res, next) {
 		});
 	}
 });
-server.listen(process.env.PORT || 5010, process.env.LISTENADDR || '127.0.0.1');
+server.listen(process.env.PORT || 5070, process.env.LISTENADDR || '0.0.0.0');
 
 //Setup Socket.IO
 var io = io.listen(server, {
@@ -51,10 +51,8 @@ var io = io.listen(server, {
 });
 // assuming io is the Socket.IO server object
 io.configure(function() {
-	io.set("polling duration", 10);
-	io.set('log level', 0);
-
 });
+
 io.sockets.on('connection', function(socket) {
 	socket.on('position', function(data) {
 		socket.broadcast.emit('position', data);
@@ -68,7 +66,7 @@ io.sockets.on('connection', function(socket) {
 });
 
 var mongo = require('mongoskin');
-var db = mongo.db("mongodb://dbserver/lusor", {
+var db = mongo.db("mongodb://dbserver/bypelabs", {
 	safe : false
 })
 
