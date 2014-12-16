@@ -43,7 +43,7 @@ server.error(function(err, req, res, next) {
 		});
 	}
 });
-server.listen(process.env.PORT || 5070, process.env.LISTENADDR || '127.0.0.1');
+server.listen(process.env.PORT || 5070, process.env.LISTENADDR || '0.0.0.0');
 
 //Setup Socket.IO
 var io = io.listen(server, {
